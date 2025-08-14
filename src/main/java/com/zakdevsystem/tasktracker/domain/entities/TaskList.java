@@ -3,12 +3,13 @@ package com.zakdevsystem.tasktracker.domain.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "tasks")
-public class Task {
+@Table(name = "task_lists")
+public class TaskList {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -21,18 +22,10 @@ public class Task {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "due_date")
-    private LocalDateTime dueDate;
-
-    @Column(name = "status", nullable = false)
-    private TaskStatus status;
-
-    @Column(name = "priority", nullable = false)
-    private TaskPriority priority;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_list_id")
-    private TaskList taskList;
+    @OneToMany(mappedBy = "taskList", cascade = {
+            CascadeType.REMOVE, CascadeType.PERSIST
+    })
+    private List<Task> tasks;
 
     @Column(name = "created", nullable = false)
     private LocalDateTime created;
@@ -40,17 +33,14 @@ public class Task {
     @Column(name = "updated", nullable = false)
     private LocalDateTime updated;
 
-    public Task() {
+    public TaskList() {
     }
 
-    public Task(UUID id, String title, String description, LocalDateTime dueDate, TaskStatus status, TaskPriority priority, LocalDateTime created, LocalDateTime updated, TaskList taskList) {
+    public TaskList(UUID id, String title, String description, List<Task> tasks, LocalDateTime created, LocalDateTime updated) {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.dueDate = dueDate;
-        this.status = status;
-        this.priority = priority;
-        this.taskList = taskList;
+        this.tasks = tasks;
         this.created = created;
         this.updated = updated;
     }
@@ -79,36 +69,12 @@ public class Task {
         this.description = description;
     }
 
-    public LocalDateTime getDueDate() {
-        return dueDate;
+    public List<Task> getTasks() {
+        return tasks;
     }
 
-    public void setDueDate(LocalDateTime dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public TaskStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(TaskStatus status) {
-        this.status = status;
-    }
-
-    public TaskPriority getPriority() {
-        return priority;
-    }
-
-    public void setPriority(TaskPriority priority) {
-        this.priority = priority;
-    }
-
-    public TaskList getTaskList() {
-        return taskList;
-    }
-
-    public void setTaskList(TaskList taskList) {
-        this.taskList = taskList;
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
     }
 
     public LocalDateTime getCreated() {
@@ -131,25 +97,22 @@ public class Task {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return Objects.equals(id, task.id) && Objects.equals(title, task.title) && Objects.equals(description, task.description) && Objects.equals(dueDate, task.dueDate) && status == task.status && priority == task.priority && Objects.equals(taskList, task.taskList) && Objects.equals(created, task.created) && Objects.equals(updated, task.updated);
+        TaskList taskList = (TaskList) o;
+        return Objects.equals(id, taskList.id) && Objects.equals(title, taskList.title) && Objects.equals(description, taskList.description) && Objects.equals(tasks, taskList.tasks) && Objects.equals(created, taskList.created) && Objects.equals(updated, taskList.updated);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, description, dueDate, status, priority, taskList, created, updated);
+        return Objects.hash(id, title, description, tasks, created, updated);
     }
 
     @Override
     public String toString() {
-        return "Task{" +
+        return "TaskList{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
-                ", dueDate=" + dueDate +
-                ", status=" + status +
-                ", priority=" + priority +
-                ", taskList=" + taskList +
+                ", tasks=" + tasks +
                 ", created=" + created +
                 ", updated=" + updated +
                 '}';
