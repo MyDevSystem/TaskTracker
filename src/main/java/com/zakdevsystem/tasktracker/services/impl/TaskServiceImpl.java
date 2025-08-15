@@ -7,6 +7,7 @@ import com.zakdevsystem.tasktracker.domain.entities.TaskStatus;
 import com.zakdevsystem.tasktracker.repositories.TaskListRepository;
 import com.zakdevsystem.tasktracker.repositories.TaskRepository;
 import com.zakdevsystem.tasktracker.services.TaskService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -96,5 +97,11 @@ public class TaskServiceImpl implements TaskService {
         taskToUpdate.setUpdated(LocalDateTime.now());
 
         return taskRepository.save(taskToUpdate);
+    }
+
+    @Transactional
+    @Override
+    public void deleteTask(UUID taskListId, UUID taskId) {
+        taskRepository.deleteByTaskListIdAndId(taskListId, taskId);
     }
 }
