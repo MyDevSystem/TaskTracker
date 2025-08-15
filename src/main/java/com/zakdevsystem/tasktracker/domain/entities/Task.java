@@ -50,9 +50,9 @@ public class Task {
         this.dueDate = dueDate;
         this.status = status;
         this.priority = priority;
-        this.taskList = taskList;
         this.created = created;
         this.updated = updated;
+        this.taskList = taskList;
     }
 
     public UUID getId() {

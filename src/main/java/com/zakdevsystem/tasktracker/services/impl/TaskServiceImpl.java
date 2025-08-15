@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,7 +48,8 @@ public class TaskServiceImpl implements TaskService {
         TaskList taskList = taskListRepository.findById(taskListId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid task list ID provided"));
 
-        LocalDateTime timeNow = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+
         Task taskToSave = new Task(
                 null,
                 task.getTitle(),
@@ -55,8 +57,8 @@ public class TaskServiceImpl implements TaskService {
                 task.getDueDate(),
                 taskStatus,
                 taskPriority,
-                timeNow,
-                timeNow,
+                now,
+                now,
                 taskList
         );
 
@@ -66,5 +68,33 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Optional<Task> getTask(UUID taskListId, UUID taskId) {
         return taskRepository.findByTaskListIdAndId(taskListId, taskId);
+    }
+
+    @Override
+    public Task updateTask(UUID taskListId, UUID taskId, Task task) {
+        if (null == task.getId()){
+            throw new IllegalArgumentException("Task must have an ID");
+        }
+        if (!Objects.equals(taskId, task.getId())){
+            throw new IllegalArgumentException("Task IDs do not match");
+        }
+        if (null == task.getPriority()){
+            throw new IllegalArgumentException("Task must have a valid Priority");
+        }
+        if (null == task.getStatus()){
+            throw new IllegalArgumentException("Task must have a valid Status");
+        }
+
+        Task taskToUpdate = taskRepository.findByTaskListIdAndId(taskListId, taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+
+        taskToUpdate.setTitle(task.getTitle());
+        taskToUpdate.setDescription(task.getDescription());
+        taskToUpdate.setDueDate(task.getDueDate());
+        taskToUpdate.setPriority(task.getPriority());
+        taskToUpdate.setStatus(task.getStatus());
+        taskToUpdate.setUpdated(LocalDateTime.now());
+
+        return taskRepository.save(taskToUpdate);
     }
 }
